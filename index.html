@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SUBSUELO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --paper: #f3f2ef; --ink: #111; --mute: #7a7871; --line: #d9d7d1; --stone: #dedad6; --serif: "Cormorant Garamond", "Times New Roman", serif; --sans: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif; --ease: cubic-bezier(.22, .61, .36, 1); --top: 34px; --foco: 28%; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--paper); }
+  body { font-family: var(--sans); color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  ::selection { background: var(--ink); color: var(--paper); }
+  .u { font-size: 11px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; }
+
+  /* ---------- barra ---------- */
+  .aviso-top { height: var(--top); display: grid; place-items: center; background: var(--ink); color: var(--paper); text-align: center; padding: 0 12px; }
+  .nav { position: fixed; z-index: 50; top: var(--top); left: 0; right: 0; height: 64px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 clamp(18px, 3vw, 44px); transition: top .4s var(--ease), background .4s, border-color .4s; border-bottom: 1px solid transparent; }
+  .nav.pegada { top: 0; background: rgba(243,242,239,.92); backdrop-filter: blur(10px); border-color: var(--line); }
+  .nav ul { display: flex; gap: 30px; list-style: none; }
+  .nav a { color: inherit; text-decoration: none; position: relative; }
+  .nav ul a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform .4s var(--ease); }
+  .nav ul a:hover::after { transform: scaleX(1); }
+  .marca { font-size: 15px; font-weight: 500; letter-spacing: .5em; text-indent: .5em; }
+  .bolsa { justify-self: end; }
+  .bolsa.salto { animation: salto .5s; } @keyframes salto { 40% { opacity: .3; } }
+
+  /* ---------- el perchero ---------- */
+  .estudio { position: relative; height: calc(100vh - var(--top)); min-height: 720px; overflow: hidden; background: var(--stone); --ry: 150px; --w: 190px; }
+
+  .vitrina { position: absolute; inset: 0; background: var(--stone); overflow: hidden; }
+  .capa { position: absolute; inset: 0; overflow: hidden; }
+  .capa img { position: absolute; left: 50%; bottom: 0; height: 78%; aspect-ratio: 4 / 5; max-width: 100%; transform: translateX(-50%); object-fit: cover; display: block;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 24%, #000 76%, transparent); mask-image: linear-gradient(90deg, transparent, #000 24%, #000 76%, transparent); }
+  .falta { display: none; }
+  .capa.sin img { display: none; }
+  .capa.sin .falta { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; line-height: 1.8; background: var(--stone); color: #9b9890; }
+  .scan { position: absolute; z-index: 5; left: 0; right: 0; top: 0; height: 1px; background: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,.25), 0 0 26px 6px rgba(255,255,255,.4); opacity: 0; pointer-events: none; }
+
+  .riel { position: absolute; z-index: 6; inset: 0; pointer-events: none; }
+  .varilla { position: absolute; top: 104px; width: 1px; height: calc(var(--ry) - 100px); background: #1a1a1a; opacity: .7; }
+  .varilla.a { left: 6%; } .varilla.b { right: 6%; }
+  .barra { z-index: 30; position: absolute; left: 0; right: 0; top: calc(var(--ry) + 1px); height: 3px; background: linear-gradient(#5a5a5a, #161616 55%, #000); box-shadow: 0 10px 16px -8px rgba(0,0,0,.38); }
+  .colgados { position: absolute; left: 0; right: 0; top: var(--ry); height: 0; }
+  .colgado { position: absolute; left: 50%; top: 0; width: var(--w); transform-origin: 50% 0; transition: transform .95s var(--ease), opacity .7s var(--ease); pointer-events: auto; cursor: pointer; text-align: center; }
+  .colgado:hover .et { opacity: 1; }
+  .cuelga { transform-origin: 50% 0; animation: balanceo var(--dur, 6s) ease-in-out var(--del, 0s) infinite alternate; }
+  .cuelga.impulso { animation: impulso 1.8s ease-out 1, balanceo var(--dur, 6s) ease-in-out 1.8s infinite alternate; }
+  @keyframes balanceo { from { transform: rotate(calc(var(--amp, 1.1deg) * -1)); } to { transform: rotate(var(--amp, 1.1deg)); } }
+  @keyframes impulso { 0% { transform: rotate(6deg); } 28% { transform: rotate(-4.2deg); } 52% { transform: rotate(2.6deg); } 76% { transform: rotate(-1.1deg); } 100% { transform: rotate(0); } }
+  .cuelga svg, .cuelga .foto-col { display: block; width: 100%; height: auto; overflow: visible; }
+  .colgado.con-foto { width: calc(var(--w) * 1.75); }
+  .cuelga .foto-col { margin-top: calc(var(--w) * -.2); -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent), linear-gradient(0deg, transparent, #000 10%, #000 90%, transparent); -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent), linear-gradient(0deg, transparent, #000 10%, #000 90%, transparent); mask-composite: intersect; }
+  .colgado.con-foto .et { margin-top: calc(var(--w) * -.24); }
+  .et { display: block; margin-top: 2px; font-size: 10px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; opacity: .78; transition: opacity .3s; }
+
+  .cats { position: absolute; z-index: 8; top: 80px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px 30px; white-space: nowrap; }
+  .cats button { color: var(--mute); padding-bottom: 5px; border-bottom: 1px solid transparent; transition: color .3s, border-color .3s; }
+  .cats button:hover { color: var(--ink); } .cats button.on { color: var(--ink); border-color: var(--ink); }
+
+  .ficha-caja { position: absolute; z-index: 8; left: clamp(18px, 3vw, 44px); bottom: clamp(22px, 4vh, 44px); width: min(380px, 31vw); min-width: 320px; padding: 24px 24px 22px; background: rgba(243,242,239,.9); backdrop-filter: blur(10px); }
+  .ficha { min-height: 112px; }
+  .ficha h2 { font-family: var(--serif); font-weight: 300; font-size: clamp(36px, 3.6vw, 56px); line-height: .96; letter-spacing: -.02em; }
+  .ficha p { margin-top: 12px; max-width: 34ch; font-size: 13px; line-height: 1.6; color: var(--mute); }
+  .ficha .cambia { animation: entra .7s var(--ease); } @keyframes entra { from { opacity: 0; transform: translateY(10px); } }
+  .compra { display: flex; align-items: baseline; justify-content: space-between; margin: 16px 0 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .precio { font-size: 15px; font-weight: 500; }
+  .tallas { display: flex; gap: 16px; }
+  .tallas button { font-size: 12px; font-weight: 500; letter-spacing: .1em; color: var(--mute); padding-bottom: 3px; border-bottom: 1px solid transparent; transition: color .3s, border-color .3s; }
+  .tallas button:hover { color: var(--ink); } .tallas button.on { color: var(--ink); border-color: var(--ink); }
+  .btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 18px 22px; background: var(--ink); color: var(--paper); transition: background .4s var(--ease); }
+  .btn:hover { background: #2c2c2c; }
+  .controles { position: absolute; z-index: 8; right: clamp(18px, 3vw, 44px); bottom: clamp(26px, 4vh, 48px); display: flex; align-items: center; gap: 22px; }
+  .controles button { color: var(--ink); font-size: 16px; letter-spacing: 0; padding: 4px 6px; } .controles button:disabled { opacity: .25; cursor: default; }
+  .controles span { min-width: 120px; text-align: center; color: var(--ink); }
+
+  /* ---------- colección ---------- */
+  .sec { padding: clamp(70px, 9vw, 140px) clamp(18px, 3vw, 44px) 0; }
+  .bloque + .bloque { margin-top: clamp(50px, 6vw, 90px); }
+  .sec-tit { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid var(--ink); margin-bottom: 24px; }
+  .sec-tit h3 { font-family: var(--serif); font-weight: 300; font-size: clamp(32px, 3.8vw, 56px); letter-spacing: -.02em; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 28px 14px; }
+  .card { cursor: pointer; text-align: left; }
+  .card .foto { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: var(--stone); }
+  .card .foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.7); transform-origin: 50% var(--foco); transition: transform 1.2s var(--ease); }
+  .card:hover .foto img { transform: scale(1.78); }
+  .card .rapido { position: absolute; left: 0; right: 0; bottom: 0; padding: 13px; text-align: center; background: rgba(243,242,239,.95); transform: translateY(101%); transition: transform .5s var(--ease); }
+  .card:hover .rapido { transform: none; }
+  .card .info { display: flex; justify-content: space-between; gap: 12px; padding-top: 12px; }
+  .card .info span:last-child { color: var(--mute); }
+
+  .editorial { position: relative; margin-top: clamp(70px, 9vw, 140px); height: min(92vh, 860px); background: var(--stone); overflow: hidden; display: none; }
+  .editorial.ok { display: block; } .editorial img { width: 100%; height: 100%; object-fit: cover; }
+  .editorial p { position: absolute; left: clamp(18px, 3vw, 44px); bottom: 28px; color: #fff; }
+  .servicios { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin: clamp(70px, 9vw, 140px) clamp(18px, 3vw, 44px) 0; border-top: 1px solid var(--ink); }
+  .servicios div { padding: 28px 24px 34px 0; border-bottom: 1px solid var(--line); }
+  .servicios h4 { font-family: var(--serif); font-weight: 400; font-size: 26px; letter-spacing: -.01em; margin: 12px 0 8px; }
+  .servicios p { max-width: 30ch; font-size: 13.5px; line-height: 1.7; color: var(--mute); }
+  footer { margin-top: clamp(70px, 9vw, 140px); padding: 0 clamp(18px, 3vw, 44px) 36px; }
+  footer .gigante { font-size: clamp(54px, 15.6vw, 280px); font-weight: 500; letter-spacing: .02em; line-height: .86; text-align: center; padding: 26px 0 34px; border-top: 1px solid var(--ink); }
+  footer .fila { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; color: var(--mute); }
+  footer button { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+
+  /* ---------- bolsa ---------- */
+  .velo { position: fixed; z-index: 70; inset: 0; background: rgba(17,17,17,.35); opacity: 0; pointer-events: none; transition: opacity .5s var(--ease); }
+  .cajon { position: fixed; z-index: 71; top: 0; right: 0; bottom: 0; width: min(440px, 100%); background: var(--paper); padding: 26px; display: flex; flex-direction: column; transform: translateX(100%); transition: transform .6s var(--ease); }
+  body.abierto .velo { opacity: 1; pointer-events: auto; } body.abierto .cajon { transform: none; }
+  .cajon header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 18px; border-bottom: 1px solid var(--ink); }
+  .lista { flex: 1; overflow: auto; } .vacia { color: var(--mute); margin-top: 40px; line-height: 1.8; }
+  .fila-b { display: flex; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+  .fila-b .im { flex: none; width: 70px; aspect-ratio: 4 / 5; background: var(--stone); overflow: hidden; } .fila-b .im img { width: 100%; height: 100%; object-fit: cover; transform: scale(2); transform-origin: 50% var(--foco); display: block; }
+  .fila-b .t { flex: 1; display: flex; flex-direction: column; justify-content: space-between; } .fila-b small { color: var(--mute); font-size: 12px; }
+  .fila-b .quitar { align-self: flex-start; color: var(--mute); text-decoration: underline; text-underline-offset: 3px; font-size: 12px; }
+  .total { display: flex; justify-content: space-between; padding: 20px 0 16px; }
+  .nota { text-align: center; color: var(--mute); font-size: 12px; margin-top: 14px; }
+  .toast { position: fixed; z-index: 80; left: 50%; bottom: 26px; transform: translate(-50%, 90px); background: var(--ink); color: var(--paper); padding: 15px 24px; transition: transform .6s var(--ease); max-width: calc(100% - 28px); text-align: center; }
+  .toast.ver { transform: translate(-50%, 0); }
+
+  /* ---------- celular: perchero arriba, modelo debajo ---------- */
+  @media (max-width: 860px) {
+    .nav ul { display: none; } .nav { display: flex; justify-content: space-between; }
+    .estudio { height: auto; min-height: 0; display: flex; flex-direction: column; padding-top: 64px; --ry: 44px; --w: 84px; }
+    .cats { order: 1; position: static; transform: none; overflow-x: auto; scrollbar-width: none; padding: 10px 18px 0; gap: 22px; } .cats::-webkit-scrollbar { display: none; }
+    .riel { order: 2; position: relative; inset: auto; height: 172px; flex: none; }
+    .vitrina { order: 3; position: relative; inset: auto; width: 100%; aspect-ratio: 4 / 5; flex: none; }
+    .capa img { top: 0; bottom: auto; height: 100%; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+    .ficha-caja { order: 4; position: static; width: auto; min-width: 0; padding: 18px 18px 8px; background: var(--paper); }
+    .ficha { min-height: 0; } .ficha h2 { font-size: 40px; } .ficha p { font-size: 12.5px; }
+    .controles { order: 5; position: static; justify-content: space-between; padding: 8px 18px 24px; background: var(--paper); }
+    .et { display: none; }
+    #btnAgregar { position: sticky; bottom: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.22); }
+  }
+  @media (prefers-reduced-motion: reduce) { .cuelga, .cuelga.impulso { animation: none; } .ficha .cambia { animation: none; } }
+</style>
+</head>
+<body>
+
+<div class="aviso-top u">Pago contra entrega · Envíos a toda Colombia</div>
+
+<nav class="nav" id="nav">
+  <ul class="u"><li><a href="#estudio">Perchero</a></li><li><a href="#coleccion">Colección</a></li><li><a href="#servicio">Servicio</a></li></ul>
+  <a class="marca" href="#" id="marca">SUBSUELO</a>
+  <button class="bolsa u" id="btnBolsa" aria-label="Abrir la bolsa">Bolsa (<span id="cuenta">0</span>)</button>
+</nav>
+
+<section class="estudio" id="estudio">
+  <div class="vitrina" id="vitrina">
+    <div class="capa" id="capaBase"><img alt=""><div class="falta u"></div></div>
+    <div class="scan" id="scan"></div>
+  </div>
+
+  <div class="riel" aria-label="Perchero">
+    <i class="varilla a"></i><i class="varilla b"></i>
+    <div class="barra"></div>
+    <div class="colgados" id="riel"></div>
+  </div>
+
+  <div class="cats u" id="cats"></div>
+
+  <div class="ficha-caja">
+    <div class="ficha" id="ficha"></div>
+    <div class="compra"><span class="precio" id="precio"></span><div class="tallas" id="tallas"></div></div>
+    <button class="btn u" id="btnAgregar"><span>Añadir a la bolsa</span><span>+</span></button>
+  </div>
+
+  <div class="controles u"><button id="prev" aria-label="Anterior">←</button><span id="cuentaCat"></span><button id="next" aria-label="Siguiente">→</button></div>
+</section>
+
+<section class="sec" id="coleccion"></section>
+
+<section class="editorial" id="editorial"><img id="editorialImg" alt=""><p class="u">Subsuelo — Colección actual</p></section>
+
+<section class="servicios" id="servicio">
+  <div><span class="u" style="color:var(--mute)">01</span><h4>Pago contra entrega</h4><p>Pagas cuando recibes. Sin tarjeta y sin adelantos.</p></div>
+  <div><span class="u" style="color:var(--mute)">02</span><h4>Envío nacional</h4><p>Despachamos a todo el país y te avisamos por WhatsApp.</p></div>
+  <div><span class="u" style="color:var(--mute)">03</span><h4>Cambios sin costo</h4><p>Si la talla no es, la cambiamos. Escríbenos y lo resolvemos.</p></div>
+</section>
+
+<footer>
+  <div class="gigante" id="gigante">SUBSUELO</div>
+  <div class="fila u"><span>© <span id="anio"></span> <span id="marcaPie"></span></span><button id="btnWa" class="u">Escribir por WhatsApp</button></div>
+</footer>
+
+<div class="velo" id="velo"></div>
+<aside class="cajon" aria-label="Bolsa de compras">
+  <header><span class="u">Tu bolsa</span><button class="u" id="btnCerrar">Cerrar</button></header>
+  <div class="lista" id="lista"></div>
+  <div class="total"><span class="u">Total</span><span id="total">$0</span></div>
+  <button class="btn u" id="btnPedido"><span>Pedir por WhatsApp</span><span>→</span></button>
+  <p class="nota">Pagas contra entrega.</p>
+</aside>
+<div class="toast u" id="toast"></div>
+
+<script src="productos.js"></script>
+<script>
+const $ = (s) => document.querySelector(s);
+const cop = (n) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(n);
+const pad = (n) => String(n).padStart(2, "0");
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+document.title = MARCA; $("#marca").textContent = MARCA; $("#gigante").textContent = MARCA; $("#marcaPie").textContent = MARCA; $("#anio").textContent = new Date().getFullYear();
+
+let cat = 0, idx = 0, animando = null, colgados = [];
+const tallaElegida = {};
+const clave = (c, i) => c + "-" + i;
+const prenda = (c = cat, i = idx) => CATEGORIAS[c].prendas[i];
+const focoDe = (c) => CATEGORIAS[c].foco || "28%";
+const movil = () => innerWidth <= 860;
+const paso = () => (movil() ? 104 : 300);
+
+/* ---------- colores y prendas dibujadas (si no hay foto "colgado") ---------- */
+function mezcla(hex, k) {
+  const n = parseInt(hex.slice(1), 16), t = k < 0 ? 0 : 255, a = Math.abs(k);
+  const c = [n >> 16, (n >> 8) & 255, n & 255].map((v) => Math.round(v + (t - v) * a));
+  return "#" + c.map((v) => v.toString(16).padStart(2, "0")).join("");
+}
+const claro = (hex) => { const n = parseInt(hex.slice(1), 16); return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 255000 > .55; };
+
+const GANCHO = '<path d="M110 3 C124 3 126 16 115 22 L110 28" fill="none" stroke="#242424" stroke-width="2.4" stroke-linecap="round"/>' +
+  '<path d="M110 28 L32 56 Q25 59 32 62 L188 62 Q195 59 188 56 Z" fill="none" stroke="#242424" stroke-width="2.4" stroke-linejoin="round"/>';
+
+function prendaSVG(tipo, color, uid) {
+  const c1 = mezcla(color, claro(color) ? .35 : .22), c2 = mezcla(color, -.2), sombra = mezcla(color, -.32);
+  const trazo = claro(color) ? "rgba(0,0,0,.16)" : "rgba(255,255,255,.11)";
+  const defs = '<defs><linearGradient id="g' + uid + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + c1 + '"/><stop offset=".5" stop-color="' + color + '"/><stop offset="1" stop-color="' + c2 + '"/></linearGradient>' +
+    '<filter id="s' + uid + '" x="-20%" y="-10%" width="140%" height="130%"><feDropShadow dx="0" dy="7" stdDeviation="6" flood-color="#000" flood-opacity=".22"/></filter></defs>';
+  const F = 'fill="url(#g' + uid + ')" filter="url(#s' + uid + ')"';
+  const L = 'fill="none" stroke="' + trazo + '" stroke-width="1.6" stroke-linecap="round"';
+  let vb, cuerpo;
+  if (tipo === "manga-larga") {
+    vb = "0 0 220 290";
+    cuerpo = '<path d="M88 56 Q110 74 132 56 L184 72 L214 196 L182 206 L168 124 L168 252 L52 252 L52 124 L38 206 L6 196 L36 72 Z" ' + F + '/>' +
+      '<path d="M88 56 Q110 74 132 56" fill="none" stroke="' + sombra + '" stroke-width="5" stroke-linecap="round"/>' +
+      '<path d="M182 206 L214 196 L216 212 L184 222 Z M38 206 L6 196 L4 212 L36 222 Z" fill="' + sombra + '"/>' +
+      '<path d="M52 242 L168 242" ' + L + '/>' +
+      '<path d="M96 110 Q92 170 100 230 M128 100 Q134 160 124 226" ' + L + ' opacity=".7"/>';
+  } else if (tipo === "hoodie") {
+    vb = "0 0 220 300";
+    cuerpo = '<path d="M72 58 L148 58 L190 76 L216 198 L184 208 L170 132 L170 264 L50 264 L50 132 L36 208 L4 198 L30 76 Z" ' + F + '/>' +
+      '<path d="M72 60 Q68 20 110 16 Q152 20 148 60 Q110 88 72 60 Z" fill="' + sombra + '"/>' +
+      '<path d="M86 58 Q110 76 134 58 Q128 40 110 38 Q92 40 86 58 Z" fill="' + mezcla(color, -.55) + '"/>' +
+      '<path d="M99 78 L97 108 M121 78 L123 108" ' + L + ' stroke-width="2.2"/>' +
+      '<path d="M72 192 L148 192 L158 238 L62 238 Z" ' + L + '/>' +
+      '<path d="M184 208 L216 198 L218 214 L186 224 Z M36 208 L4 198 L2 214 L34 224 Z" fill="' + sombra + '"/>' +
+      '<path d="M50 250 L170 250 L170 264 L50 264 Z" fill="' + sombra + '"/>';
+  } else if (tipo === "pantalon") {
+    vb = "0 0 220 330";
+    cuerpo = '<path d="M52 62 L168 62 L168 80 L52 80 Z" fill="' + sombra + '"/>' +
+      '<path d="M52 80 L110 80 L106 124 L102 322 L32 322 Z" ' + F + '/>' +
+      '<path d="M168 80 L110 80 L114 124 L118 322 L188 322 Z" ' + F + '/>' +
+      '<path d="M110 80 L110 138" ' + L + '/>' +
+      '<path d="M56 92 Q70 118 94 98 M164 92 Q150 118 126 98" ' + L + '/>' +
+      '<path d="M40 160 L62 160 L62 214 L36 214 Z M180 160 L158 160 L158 214 L184 214 Z" ' + L + '/>' +
+      '<path d="M34 306 L102 306 M186 306 L118 306" ' + L + '/>';
+  } else if (tipo === "chaqueta") {
+    vb = "0 0 220 300";
+    cuerpo = '<path d="M86 56 L134 56 L186 74 L216 214 L184 224 L170 132 L170 262 L50 262 L50 132 L36 224 L4 214 L34 74 Z" ' + F + '/>' +
+      '<path d="M86 56 L110 150 L134 56 L124 54 L110 92 L96 54 Z" fill="' + sombra + '"/>' +
+      '<path d="M110 150 L110 262" ' + L + '/>' +
+      '<path d="M70 200 L96 204 M150 200 L124 204" ' + L + ' stroke-width="2.4"/>';
+  } else {
+    vb = "0 0 220 260";
+    cuerpo = '<path d="M88 56 Q110 74 132 56 L184 72 L214 124 L180 140 L168 118 L168 238 L52 238 L52 118 L40 140 L6 124 L36 72 Z" ' + F + '/>' +
+      '<path d="M88 56 Q110 74 132 56" fill="none" stroke="' + sombra + '" stroke-width="5" stroke-linecap="round"/>' +
+      '<path d="M52 228 L168 228" ' + L + '/>' +
+      '<path d="M96 110 Q92 160 100 214 M128 100 Q134 150 124 210" ' + L + ' opacity=".7"/>';
+  }
+  return '<svg viewBox="' + vb + '" aria-hidden="true">' + defs + GANCHO + cuerpo + '</svg>';
+}
+
+/* ---------- pestañas: un perchero por categoría ---------- */
+const cats = $("#cats");
+CATEGORIAS.forEach((c, i) => {
+  const b = document.createElement("button"); b.textContent = c.nombre; b.addEventListener("click", () => elegir(i, 0));
+  cats.appendChild(b);
+});
+
+/* ---------- el riel con las prendas colgadas ---------- */
+const riel = $("#riel");
+function construirRiel() {
+  const c = CATEGORIAS[cat], s = paso();
+  riel.innerHTML = ""; colgados = [];
+  c.prendas.forEach((p, i) => {
+    const b = document.createElement("button"); b.className = "colgado"; b.title = p.nombre; b.setAttribute("aria-label", p.nombre);
+    const dur = 5 + ((i * 7) % 5) * .7, amp = (0.8 + ((i * 3) % 4) * .25) + "deg", del = -((i * 1.3) % 4) + "s";
+    const dentro = prendaSVG(p.tipo || c.tipo, p.color || "#555555", cat + "_" + i);
+    b.innerHTML = '<div class="cuelga" style="--dur:' + dur + 's;--amp:' + amp + ';--del:' + del + '">' + dentro + '<span class="et">' + esc(p.nombre) + '</span></div>';
+    b.addEventListener("click", () => elegir(cat, i));
+    b.style.opacity = 0; b.style.transform = "translate(calc(-50% + " + ((i - idx) * s) + "px), -36px)";
+    riel.appendChild(b); colgados.push(b);
+    /* si existe la foto "NN-colgado" (o p.colgado), reemplaza el dibujo por la foto */
+    const ruta = p.colgado || p.modelo.replace(/(\d+)\.(webp|png|jpg|jpeg)$/i, "$1-colgado.$2");
+    if (ruta !== p.modelo) {
+      const sonda = new Image();
+      sonda.onload = () => { const sv = b.querySelector("svg"); if (!sv) return; sonda.className = "foto-col"; sonda.alt = p.nombre; sv.replaceWith(sonda); b.classList.add("con-foto"); };
+      sonda.src = ruta;
+    }
+  });
+  requestAnimationFrame(() => requestAnimationFrame(() => posicionarRiel(true)));
+}
+function posicionarRiel(nuevo) {
+  const s = paso();
+  colgados.forEach((b, i) => {
+    const d = i - idx, a = Math.abs(d);
+    const esc_ = 1 - Math.min(a, 3) * .07, op = a === 0 ? 0 : a > 3 ? 0 : 1 - (a - 1) * .2;
+    b.style.transitionDelay = nuevo ? (a * 70) + "ms" : "0ms";
+    b.style.transform = "translate(calc(-50% + " + (d * s) + "px), 0) scale(" + esc_ + ")";
+    b.style.opacity = op; b.style.pointerEvents = a === 0 ? "none" : "auto"; b.style.zIndex = 10 - a;
+    const cu = b.firstChild; cu.classList.remove("impulso"); void cu.offsetWidth; if (!quieto) cu.classList.add("impulso");
+  });
+}
+addEventListener("resize", () => posicionarRiel(false));
+
+/* ---------- ficha y controles ---------- */
+function marcar() {
+  [...cats.children].forEach((b, i) => b.classList.toggle("on", i === cat));
+  $("#prev").disabled = idx === 0; $("#next").disabled = idx === CATEGORIAS[cat].prendas.length - 1;
+  $("#cuentaCat").textContent = CATEGORIAS[cat].nombre + " · " + pad(idx + 1) + " / " + pad(CATEGORIAS[cat].prendas.length);
+}
+$("#prev").addEventListener("click", () => elegir(cat, idx - 1));
+$("#next").addEventListener("click", () => elegir(cat, idx + 1));
+addEventListener("keydown", (e) => { if (e.target.closest("input,textarea")) return; if (e.key === "ArrowLeft") elegir(cat, idx - 1); if (e.key === "ArrowRight") elegir(cat, idx + 1); });
+{ let x0 = null; const z = $("#estudio");
+  z.addEventListener("pointerdown", (e) => { if (e.target.closest("button,a")) return; x0 = e.clientX; });
+  z.addEventListener("pointerup", (e) => { if (x0 === null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 60) elegir(cat, idx + (dx < 0 ? 1 : -1)); });
+}
+function pintarFicha() {
+  const p = prenda(), c = CATEGORIAS[cat];
+  $("#ficha").innerHTML = '<div class="cambia"><h2>' + esc(p.nombre) + '</h2><p>' + esc(p.desc || "") + '</p></div>';
+  $("#precio").textContent = cop(p.precio);
+  const k = clave(cat, idx), sel = tallaElegida[k] || (tallaElegida[k] = c.tallas[Math.min(1, c.tallas.length - 1)]);
+  const t = $("#tallas"); t.innerHTML = "";
+  c.tallas.forEach((x) => { const b = document.createElement("button"); b.textContent = x; if (x === sel) b.className = "on"; b.addEventListener("click", () => { tallaElegida[k] = x; [...t.children].forEach((y) => y.classList.toggle("on", y === b)); }); t.appendChild(b); });
+}
+
+/* ---------- la modelo aparece en el centro del perchero ---------- */
+const vitrina = $("#vitrina"), capaBase = $("#capaBase"), scan = $("#scan");
+function ponerFoto(capa, p) {
+  const im = capa.querySelector("img"), f = capa.querySelector(".falta");
+  capa.classList.remove("sin"); f.innerHTML = esc(p.nombre) + "<br>" + esc(p.modelo.split("/").slice(-2).join("/"));
+  capa.style.setProperty("--bg", 'url("' + p.modelo + '")');
+  im.onerror = () => capa.classList.add("sin"); im.src = p.modelo; im.alt = p.nombre;
+}
+function mostrarModelo(animar) {
+  const p = prenda();
+  if (animando) animando.terminar();
+  if (!animar || quieto) { ponerFoto(capaBase, p); return; }
+  const nueva = capaBase.cloneNode(true); nueva.removeAttribute("id"); nueva.style.zIndex = 2; nueva.style.clipPath = "inset(0 0 100% 0)";
+  vitrina.insertBefore(nueva, scan); ponerFoto(nueva, p);
+  const opt = { duration: 1000, easing: "cubic-bezier(.65,.05,.25,1)", fill: "forwards" };
+  const a1 = nueva.animate([{ clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)" }], opt);
+  const a2 = scan.animate([{ top: "0%", opacity: 1 }, { top: "100%", opacity: 1 }], opt);
+  let listo = false;
+  const terminar = () => { if (listo) return; listo = true; a1.cancel(); a2.cancel(); ponerFoto(capaBase, p); nueva.remove(); scan.style.opacity = 0; animando = null; };
+  a1.onfinish = terminar; animando = { terminar };
+}
+
+function elegir(c, i, animar = true) {
+  c = Math.max(0, Math.min(CATEGORIAS.length - 1, c)); i = Math.max(0, Math.min(CATEGORIAS[c].prendas.length - 1, i));
+  if (c === cat && i === idx && animar && capaBase.querySelector("img").src) return;
+  const cambioCat = c !== cat || !colgados.length; cat = c; idx = i;
+  document.documentElement.style.setProperty("--foco", focoDe(cat));
+  marcar(); pintarFicha(); mostrarModelo(animar);
+  if (cambioCat) construirRiel(); else posicionarRiel(false);
+}
+
+/* ---------- colección completa ---------- */
+const sec = $("#coleccion");
+CATEGORIAS.forEach((c, ci) => {
+  const b = document.createElement("div"); b.className = "bloque"; b.style.setProperty("--foco", focoDe(ci));
+  b.innerHTML = '<div class="sec-tit"><h3>' + esc(c.nombre) + '</h3><span class="u">' + c.prendas.length + ' piezas</span></div><div class="grid"></div>';
+  const g = b.querySelector(".grid");
+  c.prendas.forEach((p, pi) => {
+    const a = document.createElement("button"); a.className = "card";
+    a.innerHTML = '<div class="foto"><img src="' + esc(p.mini || p.modelo) + '" alt="' + esc(p.nombre) + '" loading="lazy" onerror="this.style.display=\'none\'"><div class="rapido u">Probar en la modelo</div></div><div class="info u"><span>' + esc(p.nombre) + '</span><span>' + cop(p.precio) + '</span></div>';
+    a.addEventListener("click", () => { elegir(ci, pi); $("#estudio").scrollIntoView({ behavior: quieto ? "auto" : "smooth" }); });
+    g.appendChild(a);
+  });
+  sec.appendChild(b);
+});
+{ const a = new Image(); a.onload = () => { $("#editorialImg").src = EDITORIAL; $("#editorial").classList.add("ok"); }; a.src = EDITORIAL; }
+
+/* ---------- barra y bolsa ---------- */
+const nav = $("#nav"); const sc = () => nav.classList.toggle("pegada", scrollY > 34); addEventListener("scroll", sc, { passive: true }); sc();
+const bolsa = [], lista = $("#lista");
+function aviso(t) { const a = $("#toast"); a.textContent = t; a.classList.add("ver"); clearTimeout(aviso.t); aviso.t = setTimeout(() => a.classList.remove("ver"), 2400); }
+function agregar() {
+  const p = prenda(), t = tallaElegida[clave(cat, idx)];
+  bolsa.push({ c: cat, i: idx, t }); aviso(p.nombre + " · talla " + t + " añadido"); dibujar();
+  const b = $("#btnBolsa"); b.classList.remove("salto"); void b.offsetWidth; b.classList.add("salto");
+}
+$("#btnAgregar").addEventListener("click", agregar);
+function dibujar() {
+  $("#cuenta").textContent = bolsa.length;
+  $("#total").textContent = cop(bolsa.reduce((s, x) => s + prenda(x.c, x.i).precio, 0));
+  lista.innerHTML = bolsa.length ? "" : '<p class="vacia">Tu bolsa está vacía.</p>';
+  bolsa.forEach((x, n) => {
+    const p = prenda(x.c, x.i), f = document.createElement("div"); f.className = "fila-b"; f.style.setProperty("--foco", focoDe(x.c));
+    f.innerHTML = '<div class="im"><img src="' + esc(p.mini || p.modelo) + '" alt="" onerror="this.style.display=\'none\'"></div><div class="t"><div><span class="u">' + esc(p.nombre) + '</span><br><small>Talla ' + esc(x.t) + '</small></div><div><small>' + cop(p.precio) + '</small></div></div><button class="quitar">Quitar</button>';
+    f.querySelector(".quitar").addEventListener("click", () => { bolsa.splice(n, 1); dibujar(); });
+    lista.appendChild(f);
+  });
+}
+const abrir = (v) => document.body.classList.toggle("abierto", v);
+$("#btnBolsa").addEventListener("click", () => abrir(true)); $("#btnCerrar").addEventListener("click", () => abrir(false)); $("#velo").addEventListener("click", () => abrir(false));
+function whatsapp(texto) {
+  if (!WHATSAPP) { aviso("Los pedidos por WhatsApp abren muy pronto"); return; }
+  window.open("https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(texto), "_blank");
+}
+$("#btnWa").addEventListener("click", () => whatsapp("Hola " + MARCA + ", quiero hacer un pedido."));
+$("#btnPedido").addEventListener("click", () => {
+  if (!bolsa.length) { aviso("Añade una prenda primero"); return; }
+  whatsapp("Hola " + MARCA + ", quiero pedir:\n" + bolsa.map((x) => { const p = prenda(x.c, x.i); return "• " + p.nombre + " · talla " + x.t + " · " + cop(p.precio); }).join("\n") + "\nTotal: " + $("#total").textContent + "\nPago contra entrega.");
+});
+
+const _h = location.hash.match(/cat=(\d)(?:&idx=(\d))?/);
+dibujar(); elegir(_h ? +_h[1] : 0, _h ? +(_h[2] || 0) : 1, false);
+</script>
+</body>
+</html>
